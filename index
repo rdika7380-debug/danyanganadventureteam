@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Saya</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+        iframe { border: none; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <!-- Atribut allow="geolocation" telah ditambahkan agar Apps Script bisa mengakses lokasi -->
+    <iframe 
+        src="https://script.google.com/macros/s/AKfycbwis5i5-0mvN53gsZHzultGXnEM9EBLtcp5d9rmuxntzq7pc3v-jjceyneiyZqlKFs47A/exec" 
+        allow="geolocation">
+    </iframe>
+</body>
+</html>
