@@ -2,18 +2,75 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    /* ATURAN 1: Meta tags wajib untuk iOS Full-Bleed */
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000"> /* Ganti warna ini sesuai tema Anda */
+    
     <title>Danyangan Adventure Team</title>
     
     <link rel="icon" type="image/png" href="apple-touch-icon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
 
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-        iframe { border: none; width: 100%; height: 100%; }
+        /* ATURAN 3 & 6: Setup root variables untuk bug tinggi iOS dan safe-area */
+        :root {
+            --app-height: 100vh; /* Fallback sebelum JS berjalan */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            /* Background wajib diset sync di sini agar status bar tidak fallback hitam solid */
+            background-color: #000000; 
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            /* ATURAN 3: Gunakan variable --app-height, JANGAN 100vh/dvh langsung */
+            height: 100vh;
+            height: 100dvh;
+            height: var(--app-height, 100dvh);
+            overflow: hidden;
+            background-color: #000000;
+        }
+
+        /* ATURAN 4 & 5: Container fixed TANPA bottom:0, hanya pakai height dari --app-height */
+        .app-container {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            right: 0;
+            height: var(--app-height, 100dvh);
+            /* Background menembus ke notch dan home indicator */
+            background-color: #000000; 
+        }
+
+        /* Iframe di dalamkan sepenuhnya ke dalam container fixed */
+        .app-container iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <iframe src="https://script.google.com/macros/s/AKfycbyz2pwxmYij6wq1-9KXDMqUiif_xGgbmFtO8LeAVcDZtwrN--yGBNC7PSc_bqIsAjxxlw/exec" allow="geolocation"></iframe>
+    <!-- ATURAN 5: Elemen full-screen dibungkus dalam container -->
+    <div class="app-container">
+        <iframe src="https://script.google.com/macros/s/AKfycbyz2pwxmYij6wq1-9KXDMqUiif_xGgbmFtO8LeAVcDZtwrN--yGBNC7PSc_bqIsAjxxlw/exec" allow="geolocation"></iframe>
+    </div>
+
+    <script>
+        /* ATURAN 3: Hitung tinggi asli dari window.screen.height (bypass bug WebKit -44px) */
+        function setTrueAppHeight() {
+            document.documentElement.style.setProperty('--app-height', window.screen.height + 'px');
+        }
+        setTrueAppHeight();
+        window.addEventListener('resize', setTrueAppHeight);
+        window.addEventListener('orientationchange', () => setTimeout(setTrueAppHeight, 300));
+    </script>
 </body>
 </html>
