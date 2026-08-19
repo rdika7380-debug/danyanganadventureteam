@@ -6,12 +6,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <!-- Theme color diubah menjadi Cobalt Blue -->
-    <meta name="theme-color" content="#0047ff">
+    <!-- Theme color diubah menjadi Hitam -->
+    <meta name="theme-color" content="#000000">
     <link rel="manifest" href="/testpwa/manifest.json">
     <link rel="apple-touch-icon" href="/testpwa/icon-192.png">
     <link rel="icon" type="image/png" href="/testpwa/icon-192.png">
-    <title>MONITORING TRANS</title>
+    <title>App</title>
     
     <!-- Import Font Outfit & Phosphor Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
-            --bg-base: #f4f2ed; /* Warna Cream senada dengan dashboard */
+            --bg-base: #000000; /* Diubah menjadi hitam pekat */
             --cobalt: #0047ff;
             --cobalt-dark: #0a0f1c;
         }
@@ -35,66 +35,27 @@
             height: var(--app-height, 100dvh);
             overflow: hidden;
             background-color: var(--bg-base);
-            background-image: radial-gradient(circle at 15% 15%, rgba(0, 71, 255, 0.08), transparent 25%), radial-gradient(circle at 85% 85%, rgba(15, 23, 42, 0.05), transparent 25%);
             font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-            color: var(--cobalt-dark);
+            color: #ffffff;
         }
         #app-iframe {
             position: fixed; top: 0; left: 0;
             width: 100%; height: var(--app-height, 100dvh);
-            border: none; display: block; background: transparent; z-index: 1;
+            border: none; display: block; background: #000000; z-index: 1;
         }
         
-        /* Loading Screen dengan Glassmorphism */
+        /* Loading Screen (Hanya Layar Hitam Polos) */
         #loading-screen {
             position: fixed; inset: 0; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #000000;
             z-index: 10; transition: opacity 0.5s ease;
         }
         #loading-screen.hidden { opacity: 0; pointer-events: none; }
-        
-        .loader-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            padding: 2.5rem 3rem;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logo-spin {
-            font-size: 3rem;
-            color: var(--cobalt);
-            margin-bottom: 1.5rem;
-            animation: pulse-scale 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse-scale {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-        
-        .loading-text { 
-            font-size: 1rem; 
-            color: var(--cobalt-dark); 
-            font-weight: 600; 
-            letter-spacing: -0.01em;
-        }
-        .loading-subtext { 
-            font-size: 0.8rem; 
-            color: #64748b; 
-            font-weight: 500; 
-            margin-top: 0.25rem; 
-        }
 
         /* Fallback Screen */
         #fallback { 
             position: fixed; inset: 0; 
+            background-color: #000000;
             display: none; 
             flex-direction: column; 
             align-items: center; 
@@ -106,13 +67,12 @@
         #fallback.visible { display: flex; }
         
         .fallback-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
             border-radius: 24px;
             max-width: 400px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            color: var(--cobalt-dark);
         }
         .fallback-icon {
             font-size: 3rem;
@@ -123,7 +83,6 @@
             font-size: 1.25rem; 
             font-weight: 700; 
             margin-bottom: 0.75rem; 
-            color: var(--cobalt-dark);
         }
         .fallback-desc { 
             font-size: 0.875rem; 
@@ -150,14 +109,8 @@
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader-card">
-            <i class="ph-fill ph-pulse logo-spin"></i>
-            <p class="loading-text">MONITORING TRANS</p>
-            <p class="loading-subtext">Memuat Aplikasi...</p>
-        </div>
-    </div>
+    <!-- Loading Screen (Kosong, hanya warna hitam) -->
+    <div id="loading-screen"></div>
 
     <!-- Iframe Aplikasi -->
     <iframe id="app-iframe" src="about:blank" onload="onIframeLoad()"
