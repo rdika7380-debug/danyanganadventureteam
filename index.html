@@ -3,93 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Theme color diubah menjadi Hitam -->
     <meta name="theme-color" content="#000000">
-    
     <link rel="manifest" href="/testpwa/manifest.json">
     <link rel="apple-touch-icon" href="/testpwa/icon-192.png">
     <link rel="icon" type="image/png" href="/testpwa/icon-192.png">
+    <title>App</title>
     
-    <title>Aplikasi GAS</title>
-    
+    <!-- Import Font Outfit & Phosphor Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
+            --bg-base: #000000; /* Diubah menjadi hitam pekat */
+            --cobalt: #0047ff;
+            --cobalt-dark: #0a0f1c;
         }
-
         html, body {
-            /* Metode fixed inset: Memaksa body menempel ke keempat sudut layar */
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            width: 100%;
+            height: var(--app-height, 100dvh);
             overflow: hidden;
-            background-color: #000000;
+            background-color: var(--bg-base);
             font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             color: #ffffff;
         }
-
         #app-iframe {
-            /* Metode fixed inset pada iframe: Tidak ada lagi perhitungan 100vh/100% yang gagal */
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            background: #000000;
-            z-index: 1;
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: var(--app-height, 100dvh);
+            border: none; display: block; background: #000000; z-index: 1;
         }
-
-        /* Loading Screen Modern */
+        
+        /* Loading Screen (Dengan Spinner & Teks) */
         #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: fixed; inset: 0; 
             background-color: #000000;
-            z-index: 10; 
-            transition: opacity 0.6s ease-out;
+            z-index: 10; transition: opacity 0.5s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 24px;
         }
-
-        #loading-screen.hidden { 
-            opacity: 0; 
-            pointer-events: none; 
-        }
-
-        .loader-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
 
         .spinner {
             width: 48px;
@@ -118,12 +84,8 @@
         }
 
         /* Fallback Screen */
-        #fallback-screen { 
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+        #fallback { 
+            position: fixed; inset: 0; 
             background-color: #000000;
             display: none; 
             flex-direction: column; 
@@ -133,85 +95,68 @@
             padding: 24px; 
             z-index: 20; 
         }
+        #fallback.visible { display: flex; }
         
-        #fallback-screen.visible { 
-            display: flex; 
-        }
-
         .fallback-card {
             background: rgba(255, 255, 255, 0.95);
             padding: 2.5rem;
             border-radius: 24px;
             max-width: 400px;
-            width: 100%;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-            color: #111111;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            color: var(--cobalt-dark);
         }
-        
         .fallback-icon {
             font-size: 3rem;
             color: #f43f5e;
             margin-bottom: 1rem;
         }
-        
         .fallback-title { 
             font-size: 1.25rem; 
             font-weight: 700; 
             margin-bottom: 0.75rem; 
         }
-        
         .fallback-desc { 
             font-size: 0.875rem; 
             color: #64748b; 
             margin-bottom: 1.5rem; 
             line-height: 1.6; 
         }
-        
         .fallback-btn { 
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
             padding: 0.875rem 1.5rem; 
-            background: #000000; 
-            color: #ffffff; 
+            background: var(--cobalt); 
+            color: white; 
             text-decoration: none; 
             border-radius: 12px; 
             font-weight: 600; 
             font-size: 0.875rem;
-            width: 100%;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 71, 255, 0.3);
             transition: transform 0.2s, background-color 0.2s;
         }
-        
-        .fallback-btn:active { 
-            transform: scale(0.97); 
-            background-color: #222222;
-        }
+        .fallback-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
-    <!-- Loading Screen dengan Spinner -->
+    <!-- Loading Screen (Dengan Spinner & Teks) -->
     <div id="loading-screen">
-        <div class="loader-wrapper">
-            <div class="spinner"></div>
-        </div>
+        <div class="spinner"></div>
         <div class="loading-text">Memuat Aplikasi...</div>
     </div>
 
-    <!-- Iframe Aplikasi (Tanpa src="about:blank" untuk mencegah onload palsu) -->
-    <iframe id="app-iframe" allow="fullscreen; autoplay; camera; microphone; geolocation" allowfullscreen></iframe>
+    <!-- Iframe Aplikasi -->
+    <iframe id="app-iframe" src="about:blank" onload="onIframeLoad()"
+        allow="fullscreen; autoplay; camera; microphone; geolocation" allowfullscreen></iframe>
 
     <!-- Fallback Screen -->
-    <div id="fallback-screen">
+    <div id="fallback">
         <div class="fallback-card">
             <i class="ph-fill ph-warning-circle fallback-icon"></i>
             <h2 class="fallback-title">Gagal Memuat Aplikasi</h2>
-            <p class="fallback-desc">Server membutuhkan waktu terlalu lama untuk merespons. Pastikan koneksi internet Anda stabil, lalu coba buka aplikasi langsung.</p>
-            <a href="#" id="fallback-link" class="fallback-btn" target="_blank" rel="noopener noreferrer">
+            <p class="fallback-desc">Browser mungkin memblokir konten dari domain lain. Klik tombol di bawah untuk membuka aplikasi langsung di tab baru.</p>
+            <a href="https://script.google.com/macros/s/AKfycbyz2pwxmYij6wq1-9KXDMqUiif_xGgbmFtO8LeAVcDZtwrN--yGBNC7PSc_bqIsAjxxlw/exec" class="fallback-btn" target="_blank" rel="noopener noreferrer">
                 <i class="ph-bold ph-arrow-square-out"></i>
                 Buka Aplikasi Langsung
             </a>
@@ -221,12 +166,15 @@
     <script>
         var GAS_URL = 'https://script.google.com/macros/s/AKfycbyz2pwxmYij6wq1-9KXDMqUiif_xGgbmFtO8LeAVcDZtwrN--yGBNC7PSc_bqIsAjxxlw/exec';
 
-        var loadingScreen = document.getElementById('loading-screen');
-        var fallbackScreen = document.getElementById('fallback-screen');
-        var fallbackLink = document.getElementById('fallback-link');
-        var iframe = document.getElementById('app-iframe');
+        // Tinggi layar fisik (bypass bug 100vh)
+        function setTrueAppHeight() {
+            document.documentElement.style.setProperty('--app-height', window.screen.height + 'px');
+        }
+        setTrueAppHeight();
+        window.addEventListener('resize', setTrueAppHeight);
+        window.addEventListener('orientationchange', function(){ setTimeout(setTrueAppHeight, 300); });
 
-        // Baca safe area dari wrapper (top-level)
+        // Baca safe area dari wrapper (top-level, pasti bisa)
         function getInsets() {
             var s = getComputedStyle(document.documentElement);
             return {
@@ -240,62 +188,52 @@
             };
         }
 
+        // JALUR 1: URL parameter (paling pasti, tidak tergantung timing)
+        (function initIframe() {
+            var i = getInsets();
+            document.getElementById('app-iframe').src =
+                GAS_URL + '?st=' + i.top + '&sb=' + i.bottom + '&sl=' + i.left + '&sr=' + i.right;
+        })();
+
         // JALUR 2: postMessage
         function sendSafeArea() {
-            if (iframe && iframe.contentWindow) {
-                try { 
-                    iframe.contentWindow.postMessage(getInsets(), '*'); 
-                } catch (e) {}
+            var f = document.getElementById('app-iframe');
+            if (f && f.contentWindow) {
+                try { f.contentWindow.postMessage(getInsets(), '*'); } catch (e) {}
             }
         }
 
-        // JALUR 3: Respons jika iframe meminta data safe-area
+        // JALUR 3: respons jika iframe meminta
         window.addEventListener('message', function (e) {
-            if (e.data && e.data.type === 'request-safe-area') {
-                sendSafeArea();
-            }
+            if (e.data && e.data.type === 'request-safe-area') sendSafeArea();
         });
 
-        // Event listener global untuk kirim ulang data saat ukuran berubah
+        function onIframeLoad() {
+            var loading = document.getElementById('loading-screen');
+            if (loading) loading.classList.add('hidden');
+            sendSafeArea();
+            setTimeout(sendSafeArea, 500);
+            setTimeout(sendSafeArea, 1500);
+        }
+
+        // Kirim berkala 8 detik pertama (jaga-jaga)
+        var n = 0;
+        var ticker = setInterval(function () { sendSafeArea(); if (++n > 8) clearInterval(ticker); }, 1000);
+
         window.addEventListener('resize', sendSafeArea);
         window.addEventListener('orientationchange', function () {
-            setTimeout(sendSafeArea, 300); 
-            setTimeout(sendSafeArea, 600);
+            setTimeout(sendSafeArea, 300); setTimeout(sendSafeArea, 600);
         });
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) setTimeout(sendSafeArea, 100);
         });
 
-        // 1. Pasang Event Listener Onload SEBELUM src diset
-        // Ini mencegah loading screen menghilang sebelum GAS selesai load
-        iframe.onload = function() {
-            loadingScreen.classList.add('hidden');
-            sendSafeArea();
-            // Kirim ulang beberapa kali untuk memastikan iframe menerima
-            setTimeout(sendSafeArea, 500);
-            setTimeout(sendSafeArea, 1500);
-        };
-
-        // 2. JALUR 1: Inisialisasi URL dan Set Src Iframe
-        (function initIframe() {
-            var i = getInsets();
-            var targetUrl = GAS_URL + '?st=' + i.top + '&sb=' + i.bottom + '&sl=' + i.left + '&sr=' + i.right;
-            iframe.src = targetUrl;
-            fallbackLink.href = targetUrl; 
-        })();
-
-        // 3. Ticker berkala 8 detik pertama (Jaga-jaga load asynchronous lambat)
-        var n = 0;
-        var ticker = setInterval(function () { 
-            sendSafeArea(); 
-            if (++n > 8) clearInterval(ticker); 
-        }, 1000);
-
-        // 4. Fallback Timer 10 detik
-        setTimeout(function() {
-            if (!loadingScreen.classList.contains('hidden')) {
-                loadingScreen.classList.add('hidden');
-                fallbackScreen.classList.add('visible');
+        setTimeout(function () {
+            var loading = document.getElementById('loading-screen');
+            var fallback = document.getElementById('fallback');
+            if (loading && !loading.classList.contains('hidden')) {
+                loading.classList.add('hidden');
+                fallback.classList.add('visible');
             }
         }, 10000);
     </script>
