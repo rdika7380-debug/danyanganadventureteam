@@ -2,75 +2,253 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    
-    /* ATURAN 1: Meta tags wajib untuk iOS Full-Bleed */
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000"> /* Ganti warna ini sesuai tema Anda */
+    <!-- Theme color diubah menjadi Cobalt Blue -->
+    <meta name="theme-color" content="#0047ff">
+    <link rel="manifest" href="/testpwa/manifest.json">
+    <link rel="apple-touch-icon" href="/testpwa/icon-192.png">
+    <link rel="icon" type="image/png" href="/testpwa/icon-192.png">
+    <title>MONITORING TRANS</title>
     
-    <title>Danyangan Adventure Team</title>
+    <!-- Import Font Outfit & Phosphor Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <link rel="icon" type="image/png" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json">
-
     <style>
-        /* ATURAN 3 & 6: Setup root variables untuk bug tinggi iOS dan safe-area */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --app-height: 100vh; /* Fallback sebelum JS berjalan */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
-            /* Background wajib diset sync di sini agar status bar tidak fallback hitam solid */
-            background-color: #000000; 
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --bg-base: #f4f2ed; /* Warna Cream senada dengan dashboard */
+            --cobalt: #0047ff;
+            --cobalt-dark: #0a0f1c;
         }
-
         html, body {
-            margin: 0;
-            padding: 0;
-            /* ATURAN 3: Gunakan variable --app-height, JANGAN 100vh/dvh langsung */
-            height: 100vh;
-            height: 100dvh;
+            width: 100%;
             height: var(--app-height, 100dvh);
             overflow: hidden;
-            background-color: #000000;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 15% 15%, rgba(0, 71, 255, 0.08), transparent 25%), radial-gradient(circle at 85% 85%, rgba(15, 23, 42, 0.05), transparent 25%);
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            color: var(--cobalt-dark);
+        }
+        #app-iframe {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: var(--app-height, 100dvh);
+            border: none; display: block; background: transparent; z-index: 1;
+        }
+        
+        /* Loading Screen dengan Glassmorphism */
+        #loading-screen {
+            position: fixed; inset: 0; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; transition: opacity 0.5s ease;
+        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
+        
+        .loader-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem 3rem;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-spin {
+            font-size: 3rem;
+            color: var(--cobalt);
+            margin-bottom: 1.5rem;
+            animation: pulse-scale 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-scale {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        
+        .loading-text { 
+            font-size: 1rem; 
+            color: var(--cobalt-dark); 
+            font-weight: 600; 
+            letter-spacing: -0.01em;
+        }
+        .loading-subtext { 
+            font-size: 0.8rem; 
+            color: #64748b; 
+            font-weight: 500; 
+            margin-top: 0.25rem; 
         }
 
-        /* ATURAN 4 & 5: Container fixed TANPA bottom:0, hanya pakai height dari --app-height */
-        .app-container {
-            position: fixed;
-            top: 0; 
-            left: 0; 
-            right: 0;
-            height: var(--app-height, 100dvh);
-            /* Background menembus ke notch dan home indicator */
-            background-color: #000000; 
+        /* Fallback Screen */
+        #fallback { 
+            position: fixed; inset: 0; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            padding: 24px; 
+            z-index: 20; 
         }
-
-        /* Iframe di dalamkan sepenuhnya ke dalam container fixed */
-        .app-container iframe {
-            border: none;
-            width: 100%;
-            height: 100%;
-            display: block;
+        #fallback.visible { display: flex; }
+        
+        .fallback-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            padding: 2.5rem;
+            border-radius: 24px;
+            max-width: 400px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
         }
+        .fallback-icon {
+            font-size: 3rem;
+            color: #f43f5e;
+            margin-bottom: 1rem;
+        }
+        .fallback-title { 
+            font-size: 1.25rem; 
+            font-weight: 700; 
+            margin-bottom: 0.75rem; 
+            color: var(--cobalt-dark);
+        }
+        .fallback-desc { 
+            font-size: 0.875rem; 
+            color: #64748b; 
+            margin-bottom: 1.5rem; 
+            line-height: 1.6; 
+        }
+        .fallback-btn { 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem; 
+            background: var(--cobalt); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 0.875rem;
+            box-shadow: 0 8px 20px rgba(0, 71, 255, 0.3);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .fallback-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
-    <!-- ATURAN 5: Elemen full-screen dibungkus dalam container -->
-    <div class="app-container">
-        <iframe src="https://script.google.com/macros/s/AKfycbyz2pwxmYij6wq1-9KXDMqUiif_xGgbmFtO8LeAVcDZtwrN--yGBNC7PSc_bqIsAjxxlw/exec" allow="geolocation"></iframe>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-card">
+            <i class="ph-fill ph-pulse logo-spin"></i>
+            <p class="loading-text">MONITORING TRANS</p>
+            <p class="loading-subtext">Memuat Aplikasi...</p>
+        </div>
+    </div>
+
+    <!-- Iframe Aplikasi -->
+    <iframe id="app-iframe" src="about:blank" onload="onIframeLoad()"
+        allow="fullscreen; autoplay; camera; microphone; geolocation" allowfullscreen></iframe>
+
+    <!-- Fallback Screen -->
+    <div id="fallback">
+        <div class="fallback-card">
+            <i class="ph-fill ph-warning-circle fallback-icon"></i>
+            <h2 class="fallback-title">Gagal Memuat Aplikasi</h2>
+            <p class="fallback-desc">Browser mungkin memblokir konten dari domain lain. Klik tombol di bawah untuk membuka aplikasi langsung di tab baru.</p>
+            <a href="https://script.google.com/macros/s/AKfycbxLrFlu7WzEzdD33zolptblrBsHkAe-OFcALsk_NcyvJnkBsJxDy4viSzoFl4qP2k4z3A/exec" class="fallback-btn" target="_blank" rel="noopener noreferrer">
+                <i class="ph-bold ph-arrow-square-out"></i>
+                Buka Aplikasi Langsung
+            </a>
+        </div>
     </div>
 
     <script>
-        /* ATURAN 3: Hitung tinggi asli dari window.screen.height (bypass bug WebKit -44px) */
+        var GAS_URL = 'https://script.google.com/macros/s/AKfycbxLrFlu7WzEzdD33zolptblrBsHkAe-OFcALsk_NcyvJnkBsJxDy4viSzoFl4qP2k4z3A/exec';
+
+        // Tinggi layar fisik (bypass bug 100vh)
         function setTrueAppHeight() {
             document.documentElement.style.setProperty('--app-height', window.screen.height + 'px');
         }
         setTrueAppHeight();
         window.addEventListener('resize', setTrueAppHeight);
-        window.addEventListener('orientationchange', () => setTimeout(setTrueAppHeight, 300));
+        window.addEventListener('orientationchange', function(){ setTimeout(setTrueAppHeight, 300); });
+
+        // Baca safe area dari wrapper (top-level, pasti bisa)
+        function getInsets() {
+            var s = getComputedStyle(document.documentElement);
+            return {
+                type: 'safe-area',
+                top:    parseInt(s.getPropertyValue('--safe-top'))    || 0,
+                bottom: parseInt(s.getPropertyValue('--safe-bottom')) || 0,
+                left:   parseInt(s.getPropertyValue('--safe-left'))   || 0,
+                right:  parseInt(s.getPropertyValue('--safe-right'))  || 0,
+                viewportHeight: window.innerHeight,
+                screenHeight: window.screen.height
+            };
+        }
+
+        // JALUR 1: URL parameter (paling pasti, tidak tergantung timing)
+        (function initIframe() {
+            var i = getInsets();
+            document.getElementById('app-iframe').src =
+                GAS_URL + '?st=' + i.top + '&sb=' + i.bottom + '&sl=' + i.left + '&sr=' + i.right;
+        })();
+
+        // JALUR 2: postMessage
+        function sendSafeArea() {
+            var f = document.getElementById('app-iframe');
+            if (f && f.contentWindow) {
+                try { f.contentWindow.postMessage(getInsets(), '*'); } catch (e) {}
+            }
+        }
+
+        // JALUR 3: respons jika iframe meminta
+        window.addEventListener('message', function (e) {
+            if (e.data && e.data.type === 'request-safe-area') sendSafeArea();
+        });
+
+        function onIframeLoad() {
+            var loading = document.getElementById('loading-screen');
+            if (loading) loading.classList.add('hidden');
+            sendSafeArea();
+            setTimeout(sendSafeArea, 500);
+            setTimeout(sendSafeArea, 1500);
+        }
+
+        // Kirim berkala 8 detik pertama (jaga-jaga)
+        var n = 0;
+        var ticker = setInterval(function () { sendSafeArea(); if (++n > 8) clearInterval(ticker); }, 1000);
+
+        window.addEventListener('resize', sendSafeArea);
+        window.addEventListener('orientationchange', function () {
+            setTimeout(sendSafeArea, 300); setTimeout(sendSafeArea, 600);
+        });
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) setTimeout(sendSafeArea, 100);
+        });
+
+        setTimeout(function () {
+            var loading = document.getElementById('loading-screen');
+            var fallback = document.getElementById('fallback');
+            if (loading && !loading.classList.contains('hidden')) {
+                loading.classList.add('hidden');
+                fallback.classList.add('visible');
+            }
+        }, 10000);
     </script>
 </body>
 </html>
