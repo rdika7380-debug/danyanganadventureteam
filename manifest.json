@@ -1,0 +1,26 @@
+{
+    "name": "Danyangan Adventure Team",
+    "short_name": "Danyangan",
+    "description": "Sistem tracking lokasi anggota tim petualangan",
+    "start_url": "./",
+    /* ATURAN 2: Jangan pakai "fullscreen", gunakan standalone */
+    "display": "standalone",
+    "display_override": ["standalone"],
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
